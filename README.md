@@ -1,8 +1,8 @@
 # fluent-url
 
-[![Build Status](https://travis-ci.com/kensnyder/fluent-url.svg?branch=master&v=1.0.0)](https://travis-ci.com/kensnyder/fluent-url)
-[![Code Coverage](https://codecov.io/gh/kensnyder/fluent-url/branch/master/graph/badge.svg?v=1.0.0)](https://codecov.io/gh/kensnyder/fluent-url)
-[![ISC License](https://img.shields.io/npm/l/fluent-url.svg?v=1.0.0)](https://opensource.org/licenses/ISC)
+[![Build Status](https://travis-ci.com/kensnyder/fluent-url.svg?branch=master&v=1.0.1)](https://travis-ci.com/kensnyder/fluent-url)
+[![Code Coverage](https://codecov.io/gh/kensnyder/fluent-url/branch/master/graph/badge.svg?v=1.0.1)](https://codecov.io/gh/kensnyder/fluent-url)
+[![ISC License](https://img.shields.io/npm/l/fluent-url.svg?v=1.0.1)](https://opensource.org/licenses/ISC)
 
 A chainable version of the global URL class
 

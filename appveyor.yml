@@ -3,7 +3,7 @@ image: Ubuntu
 build: off
 
 environment:
-  CODECOV_TOKEN: ''
+  CODECOV_TOKEN: '9e387f85-4bec-4fc1-9af8-77ab085995a5'
 
 # Install scripts. (runs after repo cloning)
 install:
