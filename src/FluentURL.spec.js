@@ -237,3 +237,49 @@ describe('FluentURL search params methods', () => {
 		expect(Array.from(url.qsValues())).toEqual(['hello', '1', '2']);
 	});
 });
+describe('FluentURL hash routing', () => {
+	const testUrl = 'https://example.com/home#/dashboard?msg=Hello';
+
+	it('should return hash path', () => {
+		const url = new FluentURL(testUrl);
+		expect(url.hashPath()).toBe('/dashboard');
+	});
+	it('should set hash path', () => {
+		const url = new FluentURL(testUrl);
+		expect(url.hashPath('/projects')).toBe(url);
+		expect(url.href()).toBe('https://example.com/home#/projects?msg=Hello');
+	});
+	it('should set empty hash path', () => {
+		const url = new FluentURL(testUrl);
+		expect(url.hashPath('')).toBe(url);
+		expect(url.href()).toBe('https://example.com/home#?msg=Hello');
+	});
+	it('should get hash path with empty query', () => {
+		const emptyQueryUrl = 'https://example.com/home#/dashboard';
+		const url = new FluentURL(emptyQueryUrl);
+		expect(url.hashPath('')).toBe(url);
+		expect(url.href()).toBe('https://example.com/home');
+	});
+	it('should return hash search', () => {
+		const url = new FluentURL(testUrl);
+		expect(url.hashSearch()).toEqual({ msg: 'Hello' });
+	});
+	it('should return empty hash search', () => {
+		const emptyHashUrl = 'https://example.com/home#/dashboard';
+		const url = new FluentURL(emptyHashUrl);
+		expect(url.hashSearch()).toEqual({});
+	});
+	it('should set hash search', () => {
+		const url = new FluentURL(testUrl);
+		const search = { query: 'new construction', sort: '-created' };
+		expect(url.hashSearch(search)).toBe(url);
+		expect(url.href()).toBe(
+			'https://example.com/home#/dashboard?query=new+construction&sort=-created'
+		);
+	});
+	it('should set empty hash search', () => {
+		const url = new FluentURL(testUrl);
+		expect(url.hashSearch({})).toBe(url);
+		expect(url.href()).toBe('https://example.com/home#/dashboard');
+	});
+});

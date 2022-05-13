@@ -23,6 +23,30 @@ class FluentURL {
 		this.URL.hash = newHash;
 		return this;
 	}
+	hashPath(newPath) {
+		if (arguments.length === 0) {
+			return this.URL.hash.split('?')[0].slice(1);
+		}
+		const [, query] = this.URL.hash.split('?');
+		const qs = query && query.length ? `?${query}` : '';
+		this.URL.hash = `${newPath}${qs}`;
+		return this;
+	}
+	hashSearch(newSearch) {
+		if (arguments.length === 0) {
+			const [, curr] = this.URL.hash.split('?');
+			if (!curr) {
+				return {};
+			}
+			const entries = new URLSearchParams(curr).entries();
+			return Object.fromEntries(entries);
+		}
+		const [pathStr] = this.URL.hash.split('?');
+		const query = new URLSearchParams(newSearch).toString();
+		const qs = query.length ? `?${query}` : '';
+		this.URL.hash = `${pathStr}${qs}`;
+		return this;
+	}
 	host(newHost) {
 		if (arguments.length === 0) {
 			return this.URL.host;

@@ -9,3 +9,4 @@ url.FluentURL = FluentURL;
 url.FluentURLSearchParams = FluentURLSearchParams;
 
 module.exports = url;
+module.exports.default = url;

@@ -1,8 +1,8 @@
 # fluent-url
 
-[![Build Status](https://travis-ci.com/kensnyder/fluent-url.svg?branch=master&v=1.0.1)](https://travis-ci.com/kensnyder/fluent-url)
-[![Code Coverage](https://codecov.io/gh/kensnyder/fluent-url/branch/master/graph/badge.svg?v=1.0.1)](https://codecov.io/gh/kensnyder/fluent-url)
-[![ISC License](https://img.shields.io/npm/l/fluent-url.svg?v=1.0.1)](https://opensource.org/licenses/ISC)
+[![Build status](https://ci.appveyor.com/api/projects/status/3q83wy4x2fu34p58?svg=true)](https://ci.appveyor.com/project/kensnyder/fluent-url)
+[![Code Coverage](https://codecov.io/gh/kensnyder/fluent-url/branch/master/graph/badge.svg?v=1.1.0)](https://codecov.io/gh/kensnyder/fluent-url)
+[![ISC License](https://img.shields.io/npm/l/fluent-url.svg?v=1.1.0)](https://opensource.org/licenses/ISC)
 
 A chainable version of the global URL class
 
@@ -21,12 +21,12 @@ A simple class that uses URL and URLSearchParams built-ins in a fluent
 import url from 'fluent-url';
 
 // simple construction with query string
-const search = url('https://api.example.com/search', { term: 'Foo' });
-search.href(); // https://api.example.com/search?term=Foo
+const endpoint = url('https://api.example.com/search', { term: 'Foo' });
+endpoint.href(); // https://api.example.com/search?term=Foo
 
 // chainable example
-const search = url('https://api.example.com/search?term=Foo');
-search
+const endpoint = url('https://api.example.com/search?term=Foo');
+endpoint
 	.port('8080')
 	.search({
 		b: 'two',
@@ -38,12 +38,12 @@ search
 	.href(); // https://api.example.com:8080/login?a=one&b=two#username
 
 // extend search query instead of overwriting it
-const search = url('https://api.example.com/search?term=Foo');
-search.qsExtend({
+const endpoint = url('https://api.example.com/search?term=Foo');
+endpoint.qsExtend({
 	limit: 10,
 	sort: 'created_at',
 });
-search.href(); // https://api.example.com/search?term=Foo&limit=10&sort=created_at
+endpoint.href(); // https://api.example.com/search?term=Foo&limit=10&sort=created_at
 ```
 
 ## Instantiating
@@ -115,6 +115,24 @@ const FluentURLSearchParams = require('fluent-url').FluentUrlSearchParams;
 | .URL                       | The URL object                   |
 | .fluentParams              | The FluentURLSearchParams object |
 | .fluentParams.searchParams | Reference to .URL.searchParams   |
+
+## Hash routing URLs
+
+fluent-url supports manipulating URLs that have hash routing:
+
+```js
+import url from 'fluent-url';
+
+// simple construction with query string
+const controller = url('https://example.com/home#/dashboard?msg=Hello');
+controller.hashPath(); // "/dashboard"
+controller.hashSearch(); // { msg: "Hello" }
+
+controller
+	.hashPath('/projects')
+	.hashSearch({ query: 'new construction', sort: '-created' })
+	.href(); // https://example.com/home#/projects?query=new+construction&sort=-created
+```
 
 ## Unit Tests and Code Coverage
 
