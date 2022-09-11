@@ -1,8 +1,8 @@
 # fluent-url
 
 [![Build status](https://ci.appveyor.com/api/projects/status/3q83wy4x2fu34p58?svg=true)](https://ci.appveyor.com/project/kensnyder/fluent-url)
-[![Code Coverage](https://codecov.io/gh/kensnyder/fluent-url/branch/master/graph/badge.svg?v=1.1.0)](https://codecov.io/gh/kensnyder/fluent-url)
-[![ISC License](https://img.shields.io/npm/l/fluent-url.svg?v=1.1.0)](https://opensource.org/licenses/ISC)
+[![Code Coverage](https://codecov.io/gh/kensnyder/fluent-url/branch/master/graph/badge.svg?v=1.2.0)](https://codecov.io/gh/kensnyder/fluent-url)
+[![ISC License](https://img.shields.io/npm/l/fluent-url.svg?v=1.2.0)](https://opensource.org/licenses/ISC)
 
 A chainable version of the global URL class
 
@@ -22,7 +22,8 @@ import url from 'fluent-url';
 
 // simple construction with query string
 const endpoint = url('https://api.example.com/search', { term: 'Foo' });
-endpoint.href(); // https://api.example.com/search?term=Foo
+endpoint.href();
+// => "https://api.example.com/search?term=Foo"
 
 // chainable example
 const endpoint = url('https://api.example.com/search?term=Foo');
@@ -35,7 +36,8 @@ endpoint
 	.sort()
 	.path('/login')
 	.hash('#username')
-	.href(); // https://api.example.com:8080/login?a=one&b=two#username
+	.href();
+// => "https://api.example.com:8080/login?a=one&b=two#username"
 
 // extend search query instead of overwriting it
 const endpoint = url('https://api.example.com/search?term=Foo');
@@ -43,7 +45,12 @@ endpoint.qsExtend({
 	limit: 10,
 	sort: 'created_at',
 });
-endpoint.href(); // https://api.example.com/search?term=Foo&limit=10&sort=created_at
+endpoint.href();
+// => "https://api.example.com/search?term=Foo&limit=10&sort=created_at"
+
+// manipulate relative URLs
+url('/search?term=Foo').qsAppend('limit', 10).href();
+// => "/search?term=Foo&limit=10"
 ```
 
 ## Instantiating
@@ -53,29 +60,37 @@ FluentURL can be instantiated using multiple signatures:
 ```js
 url(myUrl); // myUrl may be string or instance of URL
 url(myUrl, searchParams); // searchParams is a plain object or instance of URLSearchParams
-url(relative, baseUrl); // relative is the path and baseUrl is the domain
-url(relative, baseUrl, searchParams); // searchParams is a string, plain object or instance of URLSearchParams
+url(relative, base); // relative is the path and base is a string with protocol, port, domain
+url(relative, base, searchParams); // searchParams is a string, plain object or instance of URLSearchParams
 ```
 
-## Main Methods
+## URL Built-in Methods
 
-| URL built-in | FluentURL get | FluentURL set          | Description                                  | Example                        |
-| ------------ | ------------- | ---------------------- | -------------------------------------------- | ------------------------------ |
-| hash         | .hash()       | .hash(newHash)         | The hash string including "#"                | #foo                           |
-| host         | .host()       | .host(newHost)         | The domain name including port if applicable | example.com                    |
-| hostname     | .hostname()   | .hostname(newHost)     | The domain name excluding port               | example.com                    |
-| href         | .href()       | .href(newHref)         | The entire URL - same as .toString()         | http://example.com/foo?bar#baz |
-| origin       | .origin()     | N/A                    | The protocol, domain and port                | http://example.com:8443        |
-| password     | .password()   | .password(newPassword) | The password                                 | ftp-password                   |
-| pathname     | .pathname()   | .pathname(newPathname) | The path including leading slash             | /admin                         |
-| port         | .port()       | .port(newPort)         | The port number as a string                  | 8080                           |
-| protocol     | .protocol()   | .protocol(newProtocol) | The scheme                                   | https:                         |
-| search       | .search()     | .search(newSearch†)    | The search string†, including "?"            | ?a=one&b=two                   |
-| searchParams | .searchParams | .searchParams = params | The URLSearchParams object for this URL      | new URLSearchParams('a=1')     |
-| username     | .username()   | .username(newUsername) | The username string                          | ftpuser                        |
-| toString()   | .toString()   | N/A                    | The entire URL                               | http://example.com/foo?bar#baz |
+| URL built-in | FluentURL get | FluentURL set          | Description                                                | Example                        |
+| ------------ | ------------- | ---------------------- | ---------------------------------------------------------- | ------------------------------ |
+| .hash        | .hash()       | .hash(newHash)         | The hash string including "#"                              | #foo                           |
+| .host        | .host()       | .host(newHost)         | The domain name including port if applicable               | sub.example.com:8443           |
+| .hostname    | .hostname()   | .hostname(newHost)     | The domain name excluding port                             | sub.example.com                |
+| .href        | .href()       | .href(newHref)         | The entire URL - same as .toString()                       | http://example.com/foo?bar#baz |
+| .origin      | .origin()     | N/A                    | The protocol, domain and port                              | http://example.com:8443        |
+| .password    | .password()   | .password(newPassword) | The password                                               | ftp-password                   |
+| .pathname    | .pathname()   | .pathname(newPathname) | The path including leading slash                           | /admin                         |
+| .port        | .port()       | .port(newPort)         | The port number as a string                                | 8080                           |
+| .protocol    | .protocol()   | .protocol(newProtocol) | The scheme                                                 | https:                         |
+| .search      | .search()     | .search(newSearch)     | The search string, plain object, or URLSearchParams object | ?a=one&b=two                   |
+| .toString()  | .toString()   | N/A                    | The entire URL                                             | http://example.com/foo?bar#baz |
+| .username    | .username()   | .username(newUsername) | The username string                                        | ftpuser                        |
 
-† _newSearch can be a string, URLSearchParams object, or plain object._
+## Custom Methods
+
+| Method               | Description                                                   |
+| -------------------- | ------------------------------------------------------------- |
+| .clone()             | Create a new URL with the same values                         |
+| .export(props)       | Export all or the given subset of url attributes              |
+| .import(values)      | Import the given pieces                                       |
+| .isRelative()        | True if the URL is relative (e.g. starts with a dot or slash) |
+| .makeRelative()      | Control whether URL is relative                               |
+| .searchObject([obj]) | Get or set query string params as object                      |
 
 ## Query String Methods
 

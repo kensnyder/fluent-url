@@ -1,20 +1,30 @@
 const FluentURLSearchParams = require('./FluentURLSearchParams.js');
 
 class FluentURL {
-	constructor(url, base, searchParams) {
+	constructor(url = undefined, base = undefined, searchParams = undefined) {
 		if (typeof base === 'object' && arguments.length === 2) {
 			searchParams = base;
 			base = undefined;
 		}
-		if (url instanceof URL) {
-			this.URL = url;
+		if (url) {
+			this.href(url, base);
+			this.fluentParams = new FluentURLSearchParams(this.URL.searchParams);
 		} else {
-			this.URL = new URL(url, base);
+			// created with no arguments or all empty arguments
+			this.href('/');
+			this.fluentParams = new FluentURLSearchParams({});
 		}
-		this.fluentParams = new FluentURLSearchParams(this.URL.searchParams);
 		if (searchParams) {
 			this.qsExtend(searchParams);
 		}
+	}
+	isRelative() {
+		return !!this._ignoreBase;
+	}
+	makeRelative() {
+		this.port('').username('').password('');
+		this._ignoreBase = this.protocol() + '//' + this.hostname();
+		return this;
 	}
 	hash(newHash) {
 		if (arguments.length === 0) {
@@ -49,6 +59,9 @@ class FluentURL {
 	}
 	host(newHost) {
 		if (arguments.length === 0) {
+			if (this._ignoreBase) {
+				return undefined;
+			}
 			return this.URL.host;
 		}
 		this.URL.host = newHost;
@@ -56,23 +69,52 @@ class FluentURL {
 	}
 	hostname(newHostname) {
 		if (arguments.length === 0) {
+			if (this._ignoreBase) {
+				return undefined;
+			}
 			return this.URL.hostname;
 		}
 		this.URL.hostname = newHostname;
 		return this;
 	}
-	href(newHref) {
+	href(url, base = undefined) {
 		if (arguments.length === 0) {
-			return this.URL.href;
+			this.URL.search = this.fluentParams.toString();
+			const href = this.URL.href;
+			if (this.isRelative()) {
+				return href.replace(this._ignoreBase, '');
+			}
+			return href;
 		}
-		this.URL.href = newHref;
+		if (url instanceof URL) {
+			this.URL = url;
+		} else {
+			const match = String(url).match(/^\.{0,2}\//);
+			if (match && !base) {
+				this._ignoreBase = 'http://fluent-url-base';
+				if (match[0].startsWith('.')) {
+					this._ignoreBase += '/relative';
+				}
+				url = this._ignoreBase + url;
+			} else {
+				this._ignoreBase = undefined;
+			}
+			this.URL = new URL(url, base);
+		}
+		this.fluentParams = new FluentURLSearchParams(this.URL.searchParams);
 		return this;
 	}
 	origin() {
+		if (this._ignoreBase) {
+			return undefined;
+		}
 		return this.URL.origin;
 	}
 	password(newPassword) {
 		if (arguments.length === 0) {
+			if (this._ignoreBase) {
+				return undefined;
+			}
 			return this.URL.password;
 		}
 		this.URL.password = newPassword;
@@ -87,6 +129,9 @@ class FluentURL {
 	}
 	port(newPort) {
 		if (arguments.length === 0) {
+			if (this._ignoreBase) {
+				return undefined;
+			}
 			return this.URL.port;
 		}
 		this.URL.port = newPort;
@@ -94,6 +139,9 @@ class FluentURL {
 	}
 	protocol(newProtocol) {
 		if (arguments.length === 0) {
+			if (this._ignoreBase) {
+				return undefined;
+			}
 			return this.URL.protocol;
 		}
 		this.URL.protocol = newProtocol;
@@ -101,7 +149,8 @@ class FluentURL {
 	}
 	search(newSearch) {
 		if (arguments.length === 0) {
-			return this.URL.search;
+			const search = this.fluentParams.toString();
+			return search ? '?' + search : '';
 		}
 		if (typeof newSearch === 'string') {
 			this.URL.search = newSearch;
@@ -110,11 +159,58 @@ class FluentURL {
 		}
 		return this;
 	}
+	searchObject(object) {
+		if (arguments.length === 0) {
+			return this.qsToObject();
+		}
+		this.qsSetAll(object);
+		return this;
+	}
 	toString() {
-		return this.URL.href;
+		return this.href();
+	}
+	export(
+		withProps = [
+			'hash',
+			'host',
+			'hostname',
+			'href',
+			'isRelative',
+			'origin',
+			'password',
+			'pathname',
+			'port',
+			'protocol',
+			'search',
+			'searchObject',
+			'username',
+		]
+	) {
+		const obj = {};
+		for (const prop of withProps) {
+			if (typeof this[prop] === 'function') {
+				obj[prop] = this[prop]();
+			}
+		}
+		return obj;
+	}
+	import(values) {
+		for (const [prop, value] of Object.entries(values)) {
+			if (typeof this[prop] === 'function') {
+				this[prop](value);
+			}
+		}
+		return this;
+	}
+	clone() {
+		this.URL.search = this.fluentParams.toString();
+		return new FluentURL(this.URL);
 	}
 	username(newUsername) {
 		if (arguments.length === 0) {
+			if (this._ignoreBase) {
+				return undefined;
+			}
 			return this.URL.username;
 		}
 		this.URL.username = newUsername;
@@ -132,7 +228,7 @@ class FluentURL {
 		this.fluentParams.delete(name);
 		return this;
 	}
-	qsDeleteAll(name) {
+	qsDeleteAll() {
 		this.fluentParams.reset();
 		return this;
 	}
@@ -176,6 +272,12 @@ class FluentURL {
 	}
 	qsValues() {
 		return this.fluentParams.values();
+	}
+	qsToString() {
+		return this.fluentParams.toString();
+	}
+	qsToObject() {
+		return this.fluentParams.toObject();
 	}
 }
 

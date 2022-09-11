@@ -63,7 +63,12 @@ class FluentURLSearchParams {
 		return this;
 	}
 	set(name, value) {
-		this.searchParams.set(name, value);
+		if (typeof name === 'object' && arguments.length === 1) {
+			this.reset();
+			this.extend(name);
+		} else {
+			this.searchParams.set(name, value);
+		}
 		return this;
 	}
 	setAll(params) {
@@ -76,6 +81,9 @@ class FluentURLSearchParams {
 	}
 	toString() {
 		return this.searchParams.toString();
+	}
+	toObject() {
+		return Object.fromEntries(this.searchParams.entries());
 	}
 	values() {
 		return this.searchParams.values();

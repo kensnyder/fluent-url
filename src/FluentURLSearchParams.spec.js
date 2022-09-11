@@ -12,4 +12,9 @@ describe('FluentURLSearchParams', () => {
 		expect(params.clear()).toBe(params);
 		expect(params.toString()).toBe('');
 	});
+	it('should support setting with object', () => {
+		const params = new FluentURLSearchParams(sample);
+		expect(params.set({ b: '2', c: '3' })).toBe(params);
+		expect(params.toString()).toBe('b=2&c=3');
+	});
 });
